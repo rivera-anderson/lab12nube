@@ -31,8 +31,8 @@ STAGES = [
     {"name": "Nivel 1: Tráfico Normal",     "requests": 200,  "concurrency": 10},
     {"name": "Nivel 2: Carga Moderada",     "requests": 500,  "concurrency": 25},
     {"name": "Nivel 3: Carga Alta",         "requests": 1000, "concurrency": 50},
-    {"name": "Nivel 4: Estrés Severo",      "requests": 2000, "concurrency": 100},
-    {"name": "Nivel 5: Saturación Extrema", "requests": 4000, "concurrency": 200},
+    {"name": "Nivel 4: Estrés Severo",      "requests": 2500, "concurrency": 75},
+    {"name": "Nivel 5: Saturación Extrema", "requests": 5000, "concurrency": 100},
 ]
 
 def make_req(base_url, endpoint_info, timeout=4):

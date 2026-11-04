@@ -55,7 +55,7 @@ def make_request(request_id, base_url, endpoint_info):
 
     # Imprimir en consola en tiempo real para la grabación
     short_node = server_node[:12] if len(server_node) > 12 else server_node
-    print(f"[{request_id:03d}] -> NODO: {short_node:<12} | HTTP {status_code} | {latency_ms:6.1f}ms | {method} {path}")
+    print(f"[{request_id:>5}] -> NODO: {short_node:<12} | HTTP {status_code} | {latency_ms:6.1f}ms | {method} {path}")
 
     return {
         'id': request_id,
