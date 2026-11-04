@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Tabla General de Clasificación - Betano Predictor{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header Section (Blanco y Naranja) -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2 text-xs font-bold text-betano-orange uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Clasificación General del Torneo</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-black text-slate-900">Tabla de Posiciones Mundial 2026</h1>
+            <p class="text-xs text-slate-500 mt-1">Ranking global de participantes ordenado por puntaje acumulado según las 5 reglas oficiales.</p>
+        </div>
+        <div class="flex items-center space-x-2 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Recálculo en Vivo</span>
+        </div>
+    </div>
+
+    <!-- Podium Top 3 Cards (Tarjetas Blancas con Acentos Naranja) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {% for p in leaderboard|slice:":3" %}
+            <div class="bg-white border {% if forloop.counter == 1 %}border-betano-orange betano-glow order-first md:order-2 md:-translate-y-1.5{% elif forloop.counter == 2 %}border-slate-300 order-2 md:order-1{% else %}border-amber-300 order-3{% endif %} rounded-xl p-5 shadow-sm flex flex-col items-center text-center relative">
+                
+                <!-- Rank Medal -->
+                <div class="absolute top-3 right-3 text-xl">
+                    {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
+                </div>
+
+                <!-- Number Pill -->
+                <div class="w-12 h-12 rounded-xl {% if forloop.counter == 1 %}bg-betano-orange text-white{% elif forloop.counter == 2 %}bg-slate-300 text-slate-950{% else %}bg-amber-800 text-white{% endif %} flex items-center justify-center text-xl font-black shadow-sm mb-2">
+                    #{{ forloop.counter }}
+                </div>
+
+                <h3 class="text-base font-black text-slate-900">{{ p.user.username }}</h3>
+                <span class="text-xs text-slate-500">{{ p.user.first_name|default:"Participante" }}</span>
+
+                <div class="my-3">
+                    <span class="text-3xl font-black text-betano-orange">{{ p.total_points }}</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">PUNTOS TOTALES</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5 w-full pt-3 border-t border-slate-100 text-[10px]">
+                    <div class="bg-slate-50 p-1.5 rounded border border-slate-100">
+                        <span class="text-slate-400 block uppercase font-bold">Exactos</span>
+                        <span class="font-black text-emerald-600 text-xs">{{ p.exact_hits }}</span>
+                    </div>
+                    <div class="bg-slate-50 p-1.5 rounded border border-slate-100">
+                        <span class="text-slate-400 block uppercase font-bold">Ganador</span>
+                        <span class="font-black text-blue-600 text-xs">{{ p.winner_hits }}</span>
+                    </div>
+                    <div class="bg-slate-50 p-1.5 rounded border border-slate-100">
+                        <span class="text-slate-400 block uppercase font-bold">Racha</span>
+                        <span class="font-black text-orange-600 text-xs">{{ p.current_streak }}</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- FULL LEADERBOARD TABLE (Fondo Blanco Limpio) -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <h2 class="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center space-x-2">
+                <i class="fa-solid fa-list-ol text-betano-orange"></i>
+                <span>Tabla Completa de Participantes</span>
+            </h2>
+            <span class="text-[10px] text-slate-500 font-bold uppercase">Total: {{ leaderboard|length }} Jugadores</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-100 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-600 font-extrabold">
+                        <th class="py-3 px-4 text-center w-12">Rank</th>
+                        <th class="py-3 px-4">Participante</th>
+                        <th class="py-3 px-4 text-center">Puntos Totales</th>
+                        <th class="py-3 px-4 text-center">Exactos (+5)</th>
+                        <th class="py-3 px-4 text-center">Ganador (+3)</th>
+                        <th class="py-3 px-4 text-center">Diferencia (+2)</th>
+                        <th class="py-3 px-4 text-center">Racha (+2)</th>
+                        <th class="py-3 px-4 text-center">Anticipada (+1)</th>
+                        <th class="py-3 px-4 text-center">Racha Actual</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for p in leaderboard %}
+                        <tr class="hover:bg-orange-50/40 transition {% if p.user == request.user %}bg-orange-50/70 border-l-4 border-betano-orange{% endif %}">
+                            
+                            <td class="py-3.5 px-4 text-center font-black">
+                                <span class="w-6 h-6 rounded-md inline-flex items-center justify-center font-black text-[11px] {% if forloop.counter == 1 %}bg-amber-400 text-slate-950 shadow-sm{% elif forloop.counter == 2 %}bg-slate-300 text-slate-950{% elif forloop.counter == 3 %}bg-amber-700 text-white{% else %}bg-slate-100 text-slate-700 border border-slate-300{% endif %}">
+                                    {{ forloop.counter }}
+                                </span>
+                            </td>
+
+                            <td class="py-3.5 px-4 font-bold text-slate-900">
+                                <div class="flex items-center space-x-2">
+                                    <span>{{ p.user.username }}</span>
+                                    {% if p.user == request.user %}
+                                        <span class="text-[9px] uppercase font-black bg-orange-100 text-betano-orange border border-orange-300 px-1.5 py-0.2 rounded">
+                                            Tú
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center font-black text-sm text-betano-orange">
+                                {{ p.total_points }} PTS
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center font-bold text-emerald-600">
+                                {{ p.exact_hits }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center text-blue-600 font-semibold">
+                                {{ p.winner_hits }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center text-purple-600 font-semibold">
+                                {{ p.diff_hits }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center text-orange-600 font-bold">
+                                {{ p.streak_bonuses }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center text-cyan-600 font-bold">
+                                {{ p.early_bonuses }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center font-bold text-orange-600">
+                                <span class="inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-fire text-[10px] text-betano-orange"></i>
+                                    <span>{{ p.current_streak }}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="py-8 text-center text-slate-500">
+                                Aún no hay puntuaciones acumuladas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

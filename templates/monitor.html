@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitor de Estrés y Balanceo en Vivo - Fijas Infinitas{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header Banner -->
+    <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2 text-xs font-heading font-black text-fijas-orange uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Herramienta de Sustentación en Video</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-heading font-black text-slate-950">Monitor de Carga y Pruebas de Estrés en Vivo</h1>
+            <p class="text-xs text-slate-600 mt-1 font-medium max-w-2xl">
+                Demuestra en tiempo real cómo el balanceador Nginx distribuye las peticiones concurrentes entre las réplicas backend escaladas horizontalmente.
+            </p>
+        </div>
+        <div class="flex items-center space-x-2 bg-emerald-50 border-2 border-emerald-300 px-3.5 py-1.5 rounded-xl text-xs font-heading font-black text-emerald-950">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Clúster Activo (Docker / Nginx)</span>
+        </div>
+    </div>
+
+    <!-- Panel de Control de Pruebas de Estrés -->
+    <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-200">
+            <div>
+                <h2 class="text-sm font-heading font-black uppercase tracking-wider text-slate-900">Parámetros de la Prueba de Estrés</h2>
+                <p class="text-xs text-slate-500 font-medium">Configura el volumen de tráfico concurrente a disparar contra el balanceador.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-heading font-bold text-slate-700">Peticiones:</label>
+                    <select id="reqCount" class="bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-1.5 text-xs font-heading font-black text-slate-900 focus:outline-none focus:border-fijas-orange">
+                        <option value="60">60 Peticiones (Rápido)</option>
+                        <option value="150" selected>150 Peticiones (Estándar)</option>
+                        <option value="300">300 Peticiones (Moderada)</option>
+                        <option value="600">600 Peticiones (Carga Media)</option>
+                        <option value="1200">1,200 Peticiones (Carga Alta)</option>
+                        <option value="2500">2,500 Peticiones (Estrés Severo)</option>
+                        <option value="5000">5,000 Peticiones (Prueba de Quiebre)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-heading font-bold text-slate-700">Hilos Concurrentes:</label>
+                    <select id="concurrency" class="bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-1.5 text-xs font-heading font-black text-slate-900 focus:outline-none focus:border-fijas-orange">
+                        <option value="6">6 Hilos</option>
+                        <option value="12" selected>12 Hilos</option>
+                        <option value="25">25 Hilos</option>
+                        <option value="50">50 Hilos</option>
+                        <option value="100">100 Hilos (Saturación)</option>
+                    </select>
+                </div>
+
+                <button id="startBtn" onclick="startLiveStressTest()" class="bg-fijas-orange hover:bg-fijas-orangeHover text-white font-heading font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl transition betano-glow-sm flex items-center space-x-2 shadow-md">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Ejecutar Prueba en Vivo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicadores de Rendimiento en Tiempo Real -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div class="bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-center">
+                <div class="text-[10px] font-heading font-black uppercase text-slate-500">Progreso</div>
+                <div id="progressText" class="text-xl font-heading font-black text-slate-900">0 / 0</div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                    <div id="progressBar" class="bg-fijas-orange h-1.5 rounded-full transition-all duration-100" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-center">
+                <div class="text-[10px] font-heading font-black uppercase text-slate-500">Throughput (RPS)</div>
+                <div id="rpsText" class="text-xl font-heading font-black text-fijas-orange">0.0 req/s</div>
+                <div class="text-[10px] text-slate-500 font-bold mt-1">Velocidad de procesamiento</div>
+            </div>
+
+            <div class="bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-center">
+                <div class="text-[10px] font-heading font-black uppercase text-slate-500">Latencia Promedio</div>
+                <div id="latencyText" class="text-xl font-heading font-black text-emerald-700">0.0 ms</div>
+                <div class="text-[10px] text-slate-500 font-bold mt-1">Tiempo de respuesta</div>
+            </div>
+
+            <div class="bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-center">
+                <div class="text-[10px] font-heading font-black uppercase text-slate-500">Tasa de Éxito</div>
+                <div id="successRateText" class="text-xl font-heading font-black text-blue-700">100.0%</div>
+                <div class="text-[10px] text-slate-500 font-bold mt-1">HTTP 200 OK</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE LAS 3 RÉPLICAS BACKEND (EVIDENCIA DE BALANCEO ROUND-ROBIN) -->
+    <div class="space-y-2">
+        <div class="flex items-center space-x-2 pb-1">
+            <span class="w-3 h-3 rounded-full bg-fijas-orange"></span>
+            <h2 class="text-sm font-heading font-black uppercase tracking-wider text-slate-900">
+                Distribución de Carga en las Réplicas Backend (Round-Robin)
+            </h2>
+        </div>
+
+        <div id="replicaGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Réplica 1 -->
+            <div id="card_rep_1" class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-blue-100 text-blue-950 font-heading font-black text-xs px-2.5 py-0.5 rounded-md border border-blue-300">
+                            RÉPLICA 1
+                        </span>
+                        <span id="rep_id_1" class="font-mono text-xs text-slate-500 font-bold">backend-1</span>
+                    </div>
+                    <div class="flex items-baseline space-x-2 my-2">
+                        <span id="rep_count_1" class="text-3xl font-heading font-black text-slate-950">0</span>
+                        <span class="text-xs font-heading font-bold text-slate-500 uppercase">peticiones</span>
+                        <span id="rep_pct_1" class="text-xs font-heading font-black text-fijas-orange ml-auto">0.0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 mt-2">
+                    <div id="rep_bar_1" class="bg-blue-600 h-3 rounded-full transition-all duration-150" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Réplica 2 -->
+            <div id="card_rep_2" class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-emerald-100 text-emerald-950 font-heading font-black text-xs px-2.5 py-0.5 rounded-md border border-emerald-300">
+                            RÉPLICA 2
+                        </span>
+                        <span id="rep_id_2" class="font-mono text-xs text-slate-500 font-bold">backend-2</span>
+                    </div>
+                    <div class="flex items-baseline space-x-2 my-2">
+                        <span id="rep_count_2" class="text-3xl font-heading font-black text-slate-950">0</span>
+                        <span class="text-xs font-heading font-bold text-slate-500 uppercase">peticiones</span>
+                        <span id="rep_pct_2" class="text-xs font-heading font-black text-fijas-orange ml-auto">0.0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 mt-2">
+                    <div id="rep_bar_2" class="bg-emerald-600 h-3 rounded-full transition-all duration-150" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Réplica 3 -->
+            <div id="card_rep_3" class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-purple-100 text-purple-950 font-heading font-black text-xs px-2.5 py-0.5 rounded-md border border-purple-300">
+                            RÉPLICA 3
+                        </span>
+                        <span id="rep_id_3" class="font-mono text-xs text-slate-500 font-bold">backend-3</span>
+                    </div>
+                    <div class="flex items-baseline space-x-2 my-2">
+                        <span id="rep_count_3" class="text-3xl font-heading font-black text-slate-950">0</span>
+                        <span class="text-xs font-heading font-bold text-slate-500 uppercase">peticiones</span>
+                        <span id="rep_pct_3" class="text-xs font-heading font-black text-fijas-orange ml-auto">0.0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 mt-2">
+                    <div id="rep_bar_3" class="bg-purple-600 h-3 rounded-full transition-all duration-150" style="width: 0%"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- REGISTRO DE PETICIONES EN VIVO (TABLA STREAM) -->
+    <div class="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-xs font-heading font-black uppercase text-slate-900 tracking-wider flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-fijas-orange"></i>
+                <span>Transmisión de Solicitudes en Vivo (Últimas Peticiones Procesadas)</span>
+            </h3>
+            <span id="streamStatus" class="text-[11px] font-heading font-bold text-slate-600">En espera</span>
+        </div>
+
+        <div class="overflow-x-auto max-h-72">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-[10px] uppercase font-heading font-black text-slate-700">
+                    <tr>
+                        <th class="py-2.5 px-4 w-16">#</th>
+                        <th class="py-2.5 px-4">Endpoint</th>
+                        <th class="py-2.5 px-4 text-center">Estado</th>
+                        <th class="py-2.5 px-4 text-center">Réplica Backend Asignada</th>
+                        <th class="py-2.5 px-4 text-right">Latencia</th>
+                    </tr>
+                </thead>
+                <tbody id="streamTableBody" class="divide-y divide-slate-100 font-mono text-[11px]">
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400 font-sans text-xs">
+                            Presiona <strong>"Ejecutar Prueba en Vivo"</strong> para observar el flujo de peticiones balanceadas.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Guía para Grabar el Video de Sustentación -->
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-5 text-xs text-slate-800 space-y-2">
+        <div class="flex items-center space-x-2 font-heading font-black text-sm text-fijas-orange">
+            <i class="fa-solid fa-video text-base"></i>
+            <span>CONSEJO PARA LA GRABACIÓN DE TU VIDEO (20/20):</span>
+        </div>
+        <p class="leading-relaxed font-medium">
+            Divide tu pantalla en dos ventanas:
+            <strong>(Izquierda)</strong> Ten abierto este monitor visual y presiona <em>"Ejecutar Prueba en Vivo"</em>.
+            <strong>(Derecha)</strong> Abre una terminal con <code>python stress_test/live_demo.py</code> o <code>docker logs -f mundial_loadbalancer</code>.
+            Así el profesor observará simultáneamente el flujo de peticiones en consola y cómo las 3 réplicas en la web se reparten el tráfico al 33% cada una.
+        </p>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let isTesting = false;
+    const endpoints = ['/api/health/', '/leaderboard/', '/rooms/', '/ai-analysis/1/', '/'];
+
+    async function startLiveStressTest() {
+        if (isTesting) return;
+        isTesting = true;
+
+        const totalReqs = parseInt(document.getElementById('reqCount').value) || 120;
+        const concurrency = parseInt(document.getElementById('concurrency').value) || 12;
+
+        const startBtn = document.getElementById('startBtn');
+        startBtn.disabled = true;
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        const streamStatus = document.getElementById('streamStatus');
+        streamStatus.innerHTML = '<span class="text-fijas-orange animate-pulse">⚡ Disparando carga masiva...</span>';
+
+        const tableBody = document.getElementById('streamTableBody');
+        tableBody.innerHTML = '';
+
+        let completed = 0;
+        let successful = 0;
+        const replicaStats = {};
+        const latencies = [];
+        const startTime = performance.now();
+
+        const updateUI = (reqId, endpoint, status, node, latency) => {
+            completed++;
+            if (status >= 200 && status < 400) successful++;
+            latencies.push(latency);
+
+            // Registrar estadísticas de la réplica
+            replicaStats[node] = (replicaStats[node] || 0) + 1;
+
+            // Actualizar métricas generales
+            const pct = Math.round((completed / totalReqs) * 100);
+            document.getElementById('progressText').innerText = `${completed} / ${totalReqs}`;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+
+            const elapsedSecs = (performance.now() - startTime) / 1000;
+            const rps = (completed / elapsedSecs).toFixed(1);
+            document.getElementById('rpsText').innerText = `${rps} req/s`;
+
+            const avgLat = (latencies.reduce((a, b) => a + b, 0) / latencies.length).toFixed(1);
+            document.getElementById('latencyText').innerText = `${avgLat} ms`;
+
+            const succPct = ((successful / completed) * 100).toFixed(1);
+            document.getElementById('successRateText').innerText = `${succPct}%`;
+
+            // Mapear dinámicamente las réplicas encontradas
+            const nodeKeys = Object.keys(replicaStats);
+            nodeKeys.forEach((key, idx) => {
+                if (idx < 3) {
+                    const slot = idx + 1;
+                    const count = replicaStats[key];
+                    const repPct = ((count / completed) * 100).toFixed(1);
+                    document.getElementById(`rep_id_${slot}`).innerText = key.slice(0, 12);
+                    document.getElementById(`rep_count_${slot}`).innerText = count;
+                    document.getElementById(`rep_pct_${slot}`).innerText = `${repPct}%`;
+                    document.getElementById(`rep_bar_${slot}`).style.width = `${repPct}%`;
+                }
+            });
+
+            // Agregar fila al stream visual (muestreo inteligente para no saturar el DOM en pruebas de 5000 peticiones)
+            const shouldAddRow = totalReqs <= 200 || (reqId % Math.max(1, Math.floor(totalReqs / 50)) === 0) || status >= 400 || reqId === totalReqs;
+            if (shouldAddRow) {
+                const row = document.createElement('tr');
+                row.className = status >= 400 ? 'bg-rose-50 hover:bg-rose-100 transition' : 'hover:bg-slate-50 transition';
+                row.innerHTML = `
+                    <td class="py-2 px-4 font-bold text-slate-500">${reqId}</td>
+                    <td class="py-2 px-4 font-semibold text-slate-800">${endpoint}</td>
+                    <td class="py-2 px-4 text-center">
+                        <span class="${status < 400 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800 border border-rose-300'} px-2 py-0.5 rounded font-black text-[10px]">
+                            ${status < 400 ? status + ' OK' : status + ' ERR'}
+                        </span>
+                    </td>
+                    <td class="py-2 px-4 text-center">
+                        <span class="bg-slate-800 text-amber-400 px-2.5 py-0.5 rounded font-mono font-bold text-[10px]">
+                            ${node.slice(0, 12)}
+                        </span>
+                    </td>
+                    <td class="py-2 px-4 text-right font-bold ${latency > 1000 ? 'text-rose-600' : 'text-slate-700'}">${latency.toFixed(1)} ms</td>
+                `;
+
+                if (tableBody.children.length >= 15) {
+                    tableBody.removeChild(tableBody.lastChild);
+                }
+                tableBody.insertBefore(row, tableBody.firstChild);
+            }
+        };
+
+        // Generar cola de peticiones con concurrencia controlada
+        let reqIndex = 0;
+        async function worker() {
+            while (reqIndex < totalReqs) {
+                const currentId = ++reqIndex;
+                const endpoint = endpoints[currentId % endpoints.length];
+                const t0 = performance.now();
+                try {
+                    const resp = await fetch(endpoint, { cache: 'no-store' });
+                    const latency = performance.now() - t0;
+                    const node = resp.headers.get('X-Served-By') || 'backend-replica';
+                    updateUI(currentId, endpoint, resp.status, node, latency);
+                } catch (e) {
+                    const latency = performance.now() - t0;
+                    updateUI(currentId, endpoint, 500, 'timeout', latency);
+                }
+            }
+        }
+
+        const workers = [];
+        for (let w = 0; w < concurrency; w++) {
+            workers.push(worker());
+        }
+
+        await Promise.all(workers);
+
+        streamStatus.innerHTML = '<span class="text-emerald-700 font-black">✔ Prueba completada exitosamente</span>';
+        startBtn.disabled = false;
+        startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        isTesting = false;
+    }
+</script>
+{% endblock %}

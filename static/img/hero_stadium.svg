@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 650" width="100%" height="100%">
+  <defs>
+    <!-- Night Sky Gradient -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#060C18"/>
+      <stop offset="60%" stop-color="#0F1F38"/>
+      <stop offset="100%" stop-color="#1A3358"/>
+    </linearGradient>
+
+    <!-- Pitch Grass Gradient -->
+    <linearGradient id="pitchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0D4722"/>
+      <stop offset="35%" stop-color="#136630"/>
+      <stop offset="70%" stop-color="#1B8741"/>
+      <stop offset="100%" stop-color="#0F5727"/>
+    </linearGradient>
+
+    <!-- Orange Flare Beam -->
+    <radialGradient id="orangeFlare" cx="80%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#FF5B00" stop-opacity="0.8"/>
+      <stop offset="40%" stop-color="#FF7A29" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FF5B00" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Floodlight Beam Left -->
+    <radialGradient id="lightBeamLeft" cx="15%" cy="10%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="25%" stop-color="#B8E1FF" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#1E3A8A" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Floodlight Beam Right -->
+    <radialGradient id="lightBeamRight" cx="85%" cy="10%" r="65%">
+      <stop offset="0%" stop-color="#FFF2D6" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#FF8A3D" stop-opacity="0.45"/>
+      <stop offset="70%" stop-color="#FF5B00" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Stadium Roof Architecture -->
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#111B2E"/>
+      <stop offset="50%" stop-color="#1E2F4F"/>
+      <stop offset="100%" stop-color="#111B2E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <rect width="1600" height="650" fill="url(#skyGrad)"/>
+
+  <!-- Stadium Lighting Light Cones -->
+  <polygon points="180,40 0,650 450,650" fill="url(#lightBeamLeft)" opacity="0.7"/>
+  <polygon points="1420,40 1150,650 1600,650" fill="url(#lightBeamRight)" opacity="0.65"/>
+  <polygon points="800,10 400,650 1200,650" fill="#E2F0FF" opacity="0.08"/>
+
+  <!-- Stadium Upper Stands Curve -->
+  <path d="M 0,220 Q 800,320 1600,220 L 1600,450 L 0,450 Z" fill="url(#roofGrad)" opacity="0.95"/>
+
+  <!-- Crowd Seating Layers (Dots / Glow) -->
+  <path d="M 0,240 Q 800,340 1600,240 L 1600,320 Q 800,410 0,320 Z" fill="#1C2D4A" opacity="0.8"/>
+  <path d="M 0,270 Q 800,365 1600,270 L 1600,330 Q 800,420 0,330 Z" fill="#253C63" opacity="0.7"/>
+
+  <!-- Stadium Floodlight Towers -->
+  <!-- Left Tower -->
+  <g transform="translate(140, 20)">
+    <polygon points="30,0 50,0 70,70 10,70" fill="#334155"/>
+    <ellipse cx="40" cy="15" rx="35" ry="12" fill="#E2E8F0"/>
+    <circle cx="20" cy="15" r="5" fill="#FFFFFF"/>
+    <circle cx="32" cy="15" r="5" fill="#FFFFFF"/>
+    <circle cx="44" cy="15" r="5" fill="#FFFFFF"/>
+    <circle cx="56" cy="15" r="5" fill="#FFFFFF"/>
+  </g>
+  <!-- Right Tower -->
+  <g transform="translate(1380, 20)">
+    <polygon points="30,0 50,0 70,70 10,70" fill="#334155"/>
+    <ellipse cx="40" cy="15" rx="35" ry="12" fill="#FED7AA"/>
+    <circle cx="20" cy="15" r="5" fill="#FFEDD5"/>
+    <circle cx="32" cy="15" r="5" fill="#FFEDD5"/>
+    <circle cx="44" cy="15" r="5" fill="#FFEDD5"/>
+    <circle cx="56" cy="15" r="5" fill="#FFEDD5"/>
+  </g>
+
+  <!-- Pitch (Césped del Estadio con Perspectiva 3D) -->
+  <polygon points="0,380 1600,380 1600,650 0,650" fill="url(#pitchGrad)"/>
+
+  <!-- Field Grass Stripes (Rayas de corte de césped) -->
+  <polygon points="0,380 200,380 120,650 0,650" fill="#135427" opacity="0.4"/>
+  <polygon points="380,380 580,380 520,650 300,650" fill="#135427" opacity="0.4"/>
+  <polygon points="760,380 960,380 920,650 720,650" fill="#135427" opacity="0.4"/>
+  <polygon points="1140,380 1340,380 1320,650 1120,650" fill="#135427" opacity="0.4"/>
+  <polygon points="1520,380 1600,380 1600,650 1520,650" fill="#135427" opacity="0.4"/>
+
+  <!-- Field Lines (Líneas reglamentarias blancas) -->
+  <g stroke="#FFFFFF" stroke-width="4" stroke-opacity="0.8" fill="none">
+    <!-- Touchline Outer -->
+    <line x1="80" y1="410" x2="1520" y2="410"/>
+    <line x1="0" y1="620" x2="1600" y2="620"/>
+    <line x1="80" y1="410" x2="0" y2="620"/>
+    <line x1="1520" y1="410" x2="1600" y2="620"/>
+
+    <!-- Halfway line -->
+    <line x1="800" y1="410" x2="800" y2="620" stroke-width="5"/>
+    <!-- Center Circle -->
+    <ellipse cx="800" cy="515" rx="190" ry="70" stroke-width="4"/>
+    <circle cx="800" cy="515" r="5" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Big Orange Energy Flare Right -->
+  <rect x="700" y="0" width="900" height="650" fill="url(#orangeFlare)" opacity="0.4"/>
+
+  <!-- Floating Soccer Ball Wireframe on Center-Right -->
+  <g transform="translate(1260, 260) scale(1.1)" opacity="0.22">
+    <circle cx="100" cy="100" r="90" stroke="#FFFFFF" stroke-width="3" fill="#0A111E"/>
+    <polygon points="100,50 135,75 122,118 78,118 65,75" stroke="#FFFFFF" stroke-width="2.5" fill="#FFFFFF" fill-opacity="0.15"/>
+    <line x1="100" y1="50" x2="100" y2="20" stroke="#FFFFFF" stroke-width="2.5"/>
+    <line x1="135" y1="75" x2="165" y2="60" stroke="#FFFFFF" stroke-width="2.5"/>
+    <line x1="122" y1="118" x2="148" y2="145" stroke="#FFFFFF" stroke-width="2.5"/>
+    <line x1="78" y1="118" x2="52" y2="145" stroke="#FFFFFF" stroke-width="2.5"/>
+    <line x1="65" y1="75" x2="35" y2="60" stroke="#FFFFFF" stroke-width="2.5"/>
+  </g>
+
+  <!-- Golden Flare Accent -->
+  <circle cx="1370" cy="220" r="140" fill="#FF5B00" opacity="0.28" filter="blur(40px)"/>
+  <circle cx="300" cy="120" r="100" fill="#38BDF8" opacity="0.18" filter="blur(30px)"/>
+</svg>

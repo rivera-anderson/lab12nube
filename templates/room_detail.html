@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ room.name }} - Clasificación de Sala - Fijas Infinitas{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Room Header Banner (Blanco con acento naranja) -->
+    <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="bg-fijas-orange text-white text-[10px] font-heading font-black uppercase px-2.5 py-0.5 rounded-md shadow-sm">
+                        SALA PRIVADA
+                    </span>
+                    <span class="text-xs text-slate-600 font-heading font-bold">
+                        {{ member_count }} Participantes
+                    </span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-heading font-black text-slate-950">{{ room.name }}</h1>
+                <p class="text-xs text-slate-600 mt-1 font-medium">{{ room.description|default:"Sin descripción." }}</p>
+            </div>
+
+            <!-- Share Box -->
+            <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-3.5 flex flex-col items-center shadow-2xs">
+                <span class="text-[10px] uppercase font-heading font-black text-slate-600 mb-1">Código de Invitación:</span>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl font-mono font-black text-fijas-orange tracking-wider">{{ room.code }}</span>
+                    <button onclick="navigator.clipboard.writeText('{{ room.code }}'); alert('Código copiado: {{ room.code }}');"
+                            class="bg-fijas-orange hover:bg-fijas-orangeHover text-white text-xs font-heading font-black px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shadow-sm">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copiar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE POSICIONES DE LA SALA -->
+    <div class="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-trophy text-amber-500 text-sm"></i>
+                <h2 class="text-xs font-heading font-black uppercase tracking-wider text-slate-900">Clasificación Oficial de la Sala</h2>
+            </div>
+            <span class="text-[10px] text-slate-600 font-heading font-black uppercase">Puntaje Acumulado</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-50 border-b-2 border-slate-200 text-[10px] uppercase tracking-wider text-slate-700 font-heading font-black">
+                        <th class="py-3.5 px-4 text-center w-12">Pos</th>
+                        <th class="py-3.5 px-4">Participante</th>
+                        <th class="py-3.5 px-4 text-center">Puntos Totales</th>
+                        <th class="py-3.5 px-4 text-center">Exactos (+5)</th>
+                        <th class="py-3.5 px-4 text-center">Ganador (+3)</th>
+                        <th class="py-3.5 px-4 text-center">Diferencia (+2)</th>
+                        <th class="py-3.5 px-4 text-center">Racha Actual</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in leaderboard %}
+                        <tr class="hover:bg-orange-50/50 transition {% if item.user == request.user %}bg-orange-50/90 border-l-4 border-fijas-orange{% endif %}">
+                            
+                            <!-- Posición -->
+                            <td class="py-3.5 px-4 text-center font-black">
+                                <span class="w-6 h-6 rounded-lg inline-flex items-center justify-center font-heading font-black text-xs {% if item.rank == 1 %}bg-amber-400 text-slate-950 shadow-2xs{% elif item.rank == 2 %}bg-slate-300 text-slate-950{% elif item.rank == 3 %}bg-amber-700 text-white{% else %}bg-slate-200 text-slate-800 border border-slate-300{% endif %}">
+                                    {{ item.rank }}
+                                </span>
+                            </td>
+
+                            <!-- Usuario -->
+                            <td class="py-3.5 px-4 font-heading font-black text-slate-950">
+                                <div class="flex items-center space-x-2">
+                                    <span>{{ item.user.username }}</span>
+                                    {% if item.user == room.created_by %}
+                                        <span class="text-[9px] uppercase font-black bg-emerald-100 text-emerald-950 border border-emerald-300 px-2 py-0.5 rounded-md">
+                                            Creador
+                                        </span>
+                                    {% endif %}
+                                    {% if item.user == request.user %}
+                                        <span class="text-[9px] uppercase font-black bg-orange-100 text-orange-950 border border-orange-300 px-2 py-0.5 rounded-md">
+                                            Tú
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Puntos Totales -->
+                            <td class="py-3.5 px-4 text-center font-heading font-black text-sm text-fijas-orange">
+                                {{ item.profile.total_points }} PTS
+                            </td>
+
+                            <!-- Exactos -->
+                            <td class="py-3.5 px-4 text-center font-heading font-black text-emerald-700">
+                                {{ item.profile.exact_hits }}
+                            </td>
+
+                            <!-- Ganador -->
+                            <td class="py-3.5 px-4 text-center text-blue-700 font-heading font-bold">
+                                {{ item.profile.winner_hits }}
+                            </td>
+
+                            <!-- Diferencia -->
+                            <td class="py-3.5 px-4 text-center text-purple-700 font-heading font-bold">
+                                {{ item.profile.diff_hits }}
+                            </td>
+
+                            <!-- Racha -->
+                            <td class="py-3.5 px-4 text-center font-heading font-black text-orange-600">
+                                <span class="inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-fire text-[10px] text-fijas-orange"></i>
+                                    <span>{{ item.profile.current_streak }}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-slate-600 font-medium">
+                                No hay participantes inscritos en esta sala.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Navegación Inferior con Botones de Alto Contraste -->
+    <div class="flex items-center justify-between pt-2">
+        <a href="{% url 'rooms' %}" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-sm flex items-center space-x-1.5">
+            <span>← Volver a Salas</span>
+        </a>
+        <a href="{% url 'index' %}" class="px-5 py-2.5 bg-fijas-orange hover:bg-fijas-orangeHover text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl transition betano-glow-sm shadow-md">
+            Ir a Pronósticos →
+        </a>
+    </div>
+
+</div>
+{% endblock %}

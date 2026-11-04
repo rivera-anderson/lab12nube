@@ -1,0 +1,617 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+{% load static %}
+
+{% block title %}Pronósticos y Partidos - Fijas Infinitas 2026{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- HERO BANNER CON IMAGEN DE ESTADIO DE FÚTBOL -->
+    <div class="relative overflow-hidden rounded-2xl shadow-xl border border-slate-200 min-h-[280px] sm:min-h-[300px] flex items-center">
+        
+        <!-- 1. Imagen de Fondo de Estadio Local (Césped, Luces y Graderías) -->
+        <img src="{% static 'img/hero_stadium.svg' %}" alt="Estadio Mundialista"
+             class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none">
+
+        <!-- 2. Capa de Degradado para Contraste y Texto Nítido -->
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-radial from-transparent via-slate-950/30 to-slate-950/70"></div>
+
+        <!-- 3. Contenido del Hero -->
+        <div class="relative z-10 p-6 sm:p-8 w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-3 max-w-2xl text-white">
+                <div class="inline-flex items-center space-x-2 bg-fijas-orange text-white px-3.5 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider shadow-md">
+                    <i class="fa-solid fa-fire text-amber-300"></i>
+                    <span>FIJAS INFINITAS • COPA MUNDIAL 2026</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight leading-tight text-white drop-shadow-md">
+                    Predice las Fijas y Conquista la Copa
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-xl font-medium drop-shadow">
+                    Sistema automatizado con las 5 reglas oficiales de puntuación, bonus por racha de aciertos y análisis predictivo de probabilidades Poisson con Inteligencia Artificial.
+                </p>
+            </div>
+
+            <!-- Tarjeta Flotante en Blanco (Estadísticas del Usuario) -->
+            <div class="bg-white/95 backdrop-blur-md border border-white/80 p-4 rounded-2xl shadow-2xl flex items-center gap-4 text-slate-800">
+                <div class="text-center px-3 border-r border-slate-200">
+                    <div class="text-[10px] uppercase font-heading font-extrabold text-slate-500">Tus Puntos</div>
+                    <div class="text-2xl sm:text-3xl font-heading font-black text-fijas-orange leading-tight">{{ user_profile.total_points|default:0 }}</div>
+                </div>
+                <div class="text-center px-3 border-r border-slate-200">
+                    <div class="text-[10px] uppercase font-heading font-extrabold text-slate-500">Racha Actual</div>
+                    <div class="text-2xl sm:text-3xl font-heading font-black text-amber-500 flex items-center justify-center space-x-1 leading-tight">
+                        <i class="fa-solid fa-fire text-lg text-fijas-orange animate-pulse"></i>
+                        <span>{{ user_profile.current_streak|default:0 }}</span>
+                    </div>
+                </div>
+                <div class="text-center px-3">
+                    <div class="text-[10px] uppercase font-heading font-extrabold text-slate-500">Plenos</div>
+                    <div class="text-2xl sm:text-3xl font-heading font-black text-emerald-600 leading-tight">{{ user_profile.exact_hits|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 5 REGLAS OFICIALES (Banner con Contraste Mejorado) -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center space-x-2 text-xs font-heading font-black text-slate-900 uppercase tracking-wider mb-3">
+            <i class="fa-solid fa-shield-halved text-fijas-orange text-sm"></i>
+            <span>SISTEMA DE PUNTUACIÓN IMPLEMENTADO (5 REGLAS OFICIALES):</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+            
+            <div class="bg-emerald-50 border-2 border-emerald-200 p-3 rounded-xl shadow-2xs">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-heading font-black text-slate-950 text-xs">1. Exacto</span>
+                    <span class="bg-emerald-700 text-white font-heading font-black text-[10px] px-2 py-0.5 rounded shadow-2xs">+5 PTS</span>
+                </div>
+                <p class="text-[11px] text-slate-700 leading-tight font-medium">Acierta el marcador exacto del partido (ej. 2-1 y queda 2-1).</p>
+            </div>
+
+            <div class="bg-blue-50 border-2 border-blue-200 p-3 rounded-xl shadow-2xs">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-heading font-black text-slate-950 text-xs">2. Ganador</span>
+                    <span class="bg-blue-700 text-white font-heading font-black text-[10px] px-2 py-0.5 rounded shadow-2xs">+3 PTS</span>
+                </div>
+                <p class="text-[11px] text-slate-700 leading-tight font-medium">Acierta qué equipo gana o empate sin el marcador exacto.</p>
+            </div>
+
+            <div class="bg-purple-50 border-2 border-purple-200 p-3 rounded-xl shadow-2xs">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-heading font-black text-slate-950 text-xs">3. Margen</span>
+                    <span class="bg-purple-700 text-white font-heading font-black text-[10px] px-2 py-0.5 rounded shadow-2xs">+2 PTS</span>
+                </div>
+                <p class="text-[11px] text-slate-700 leading-tight font-medium">Diferencia de goles exacta a favor del mismo equipo (ej. 3-1 y 2-0).</p>
+            </div>
+
+            <div class="bg-orange-50 border-2 border-orange-200 p-3 rounded-xl shadow-2xs">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-heading font-black text-slate-950 text-xs">4. Racha</span>
+                    <span class="bg-fijas-orange text-white font-heading font-black text-[10px] px-2 py-0.5 rounded shadow-2xs">+2 EXTRA</span>
+                </div>
+                <p class="text-[11px] text-slate-700 leading-tight font-medium">Por cada 3 partidos seguidos acertados (al menos ganador).</p>
+            </div>
+
+            <div class="bg-cyan-50 border-2 border-cyan-200 p-3 rounded-xl col-span-2 sm:col-span-1 shadow-2xs">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-heading font-black text-slate-950 text-xs">5. Anticipada</span>
+                    <span class="bg-cyan-700 text-white font-heading font-black text-[10px] px-2 py-0.5 rounded shadow-2xs">+1 EXTRA</span>
+                </div>
+                <p class="text-[11px] text-slate-700 leading-tight font-medium">Pronóstico registrado con >24 horas de anticipación al partido.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MAIN GRID (8 Columnas Partidos / 4 Columnas Sidebar) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- CENTER: FIXTURES (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+
+            <!-- PROXIMOS ENCUENTROS -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-fijas-orange"></span>
+                        <h2 class="text-sm font-heading font-black uppercase tracking-wider text-slate-900">Partidos Disponibles para Pronosticar</h2>
+                    </div>
+                    <span class="text-xs bg-slate-900 text-white border border-slate-800 px-3 py-1 rounded-full font-heading font-extrabold shadow-sm">
+                        {{ scheduled_matches.count }} Encuentros
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    {% for m in scheduled_matches %}
+                        <div class="bg-white border-2 border-slate-200 rounded-2xl hover:border-orange-400 transition shadow-sm overflow-hidden">
+                            
+                            <!-- Header de Partido (Fondo Suave y Letras Negras de Alto Contraste) -->
+                            <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-700 gap-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-heading font-black text-fijas-orange uppercase tracking-wider">{{ m.stage }}</span>
+                                    <span class="text-slate-400">•</span>
+                                    <span class="text-slate-900 font-extrabold font-heading">{{ m.group_name }}</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="flex items-center space-x-1 text-slate-600 font-medium">
+                                        <i class="fa-solid fa-location-dot text-slate-500"></i>
+                                        <span>{{ m.stadium }}</span>
+                                    </span>
+                                    <span class="flex items-center space-x-1.5 text-slate-900 font-heading font-extrabold bg-white border border-slate-300 px-2.5 py-1 rounded-lg shadow-2xs">
+                                        <i class="fa-regular fa-clock text-fijas-orange font-bold"></i>
+                                        <span>{{ m.match_date|date:"d M - H:i" }}</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Contenido del Partido y Formulario de Predicción -->
+                            <div class="p-4 sm:p-5">
+                                {% if user.is_authenticated %}
+                                    <form action="{% url 'submit_prediction' m.id %}" method="POST" class="space-y-4">
+                                        {% csrf_token %}
+
+                                        <div class="grid grid-cols-12 items-center gap-3">
+                                            
+                                            <!-- Equipo Local -->
+                                            <div class="col-span-5 sm:col-span-4 flex items-center space-x-3">
+                                                <span class="text-3xl filter drop-shadow">{{ m.home_flag }}</span>
+                                                <div class="truncate">
+                                                    <span class="font-heading font-black text-sm sm:text-base text-slate-950 block truncate">{{ m.team_home }}</span>
+                                                    <span class="text-[10px] text-slate-600 font-heading font-extrabold uppercase">Local</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Controles de Marcador (Botones y Marcadores de ALTO CONTRASTE) -->
+                                            <div class="col-span-7 sm:col-span-4 flex items-center justify-center space-x-2">
+                                                
+                                                <!-- Local Stepper -->
+                                                <div class="flex items-center bg-slate-100 border-2 border-slate-300 rounded-xl p-1 shadow-inner">
+                                                    <button type="button" onclick="stepScore('pred_home_{{ m.id }}', -1)"
+                                                            class="w-8 h-8 flex items-center justify-center bg-white hover:bg-fijas-orange text-slate-900 hover:text-white rounded-lg transition font-black text-base shadow-sm border border-slate-300">
+                                                        -
+                                                    </button>
+                                                    <input type="number" id="pred_home_{{ m.id }}" name="home_score_pred" min="0" max="15" required
+                                                           class="w-11 bg-white text-center font-heading font-black text-xl text-slate-950 border border-slate-300 rounded-lg mx-1 py-0.5 focus:border-fijas-orange focus:ring-2 focus:ring-fijas-orange/30 focus:outline-none shadow-2xs"
+                                                           value="{% if m.id in user_predictions %}{{ user_predictions|dict_get:m.id|attr:'home_score_pred' }}{% else %}0{% endif %}">
+                                                    <button type="button" onclick="stepScore('pred_home_{{ m.id }}', 1)"
+                                                            class="w-8 h-8 flex items-center justify-center bg-white hover:bg-fijas-orange text-slate-900 hover:text-white rounded-lg transition font-black text-base shadow-sm border border-slate-300">
+                                                        +
+                                                    </button>
+                                                </div>
+
+                                                <span class="text-xs font-heading font-black text-slate-500 px-1">VS</span>
+
+                                                <!-- Visita Stepper -->
+                                                <div class="flex items-center bg-slate-100 border-2 border-slate-300 rounded-xl p-1 shadow-inner">
+                                                    <button type="button" onclick="stepScore('pred_away_{{ m.id }}', -1)"
+                                                            class="w-8 h-8 flex items-center justify-center bg-white hover:bg-fijas-orange text-slate-900 hover:text-white rounded-lg transition font-black text-base shadow-sm border border-slate-300">
+                                                        -
+                                                    </button>
+                                                    <input type="number" id="pred_away_{{ m.id }}" name="away_score_pred" min="0" max="15" required
+                                                           class="w-11 bg-white text-center font-heading font-black text-xl text-slate-950 border border-slate-300 rounded-lg mx-1 py-0.5 focus:border-fijas-orange focus:ring-2 focus:ring-fijas-orange/30 focus:outline-none shadow-2xs"
+                                                           value="{% if m.id in user_predictions %}{{ user_predictions|dict_get:m.id|attr:'away_score_pred' }}{% else %}0{% endif %}">
+                                                    <button type="button" onclick="stepScore('pred_away_{{ m.id }}', 1)"
+                                                            class="w-8 h-8 flex items-center justify-center bg-white hover:bg-fijas-orange text-slate-900 hover:text-white rounded-lg transition font-black text-base shadow-sm border border-slate-300">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Equipo Visitante -->
+                                            <div class="col-span-12 sm:col-span-4 flex items-center justify-start sm:justify-end space-x-3">
+                                                <div class="truncate text-left sm:text-right">
+                                                    <span class="font-heading font-black text-sm sm:text-base text-slate-950 block truncate">{{ m.team_away }}</span>
+                                                    <span class="text-[10px] text-slate-600 font-heading font-extrabold uppercase">Visitante</span>
+                                                </div>
+                                                <span class="text-3xl filter drop-shadow order-first sm:order-last">{{ m.away_flag }}</span>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Barra de Acciones del Partido -->
+                                        <div class="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                                            
+                                            <!-- Estado del Pronóstico -->
+                                            <div class="flex items-center space-x-2">
+                                                {% if m.id in user_predictions %}
+                                                    <span class="bg-emerald-100 text-emerald-900 border-2 border-emerald-300 text-xs font-heading font-black px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-2xs">
+                                                        <i class="fa-solid fa-check text-emerald-700"></i>
+                                                        <span>Pronóstico Guardado: {{ user_predictions|dict_get:m.id|attr:'home_score_pred' }} - {{ user_predictions|dict_get:m.id|attr:'away_score_pred' }}</span>
+                                                    </span>
+                                                {% else %}
+                                                    <span class="bg-slate-200 text-slate-800 text-xs font-heading font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1.5">
+                                                        <i class="fa-regular fa-circle-dot text-amber-600"></i>
+                                                        <span>Sin pronóstico aún</span>
+                                                    </span>
+                                                {% endif %}
+
+                                                <span class="hidden sm:inline-flex items-center space-x-1.5 bg-cyan-100 text-cyan-950 border-2 border-cyan-300 text-xs font-heading font-black px-2.5 py-1 rounded-lg shadow-2xs" title="Registrado >24h antes">
+                                                    <i class="fa-solid fa-bolt text-cyan-700"></i>
+                                                    <span>Bonus Anticipación +1</span>
+                                                </span>
+                                            </div>
+
+                                            <!-- Botones CTA con ALTO CONTRASTE -->
+                                            <div class="flex items-center space-x-2.5">
+                                                <!-- Botón Estadísticas IA (Negro con Blanco de Alto Contraste) -->
+                                                <button type="button" onclick="openAIModal({{ m.id }})"
+                                                        class="bg-slate-900 hover:bg-slate-800 text-white border border-slate-900 text-xs font-heading font-bold px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5">
+                                                    <i class="fa-solid fa-brain text-amber-400"></i>
+                                                    <span>Estadísticas IA</span>
+                                                </button>
+
+                                                <!-- Botón Guardar Naranja de Alto Contraste -->
+                                                <button type="submit"
+                                                        class="bg-fijas-orange hover:bg-fijas-orangeHover text-white text-xs font-heading font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition betano-glow-sm flex items-center space-x-1.5 shadow-md">
+                                                    <i class="fa-solid fa-floppy-disk text-white"></i>
+                                                    <span>{% if m.id in user_predictions %}Actualizar{% else %}Guardar Fija{% endif %}</span>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </form>
+
+                                    <!-- Panel Rápido para Simulación Docente -->
+                                    <div class="mt-3 pt-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-700 bg-slate-100 p-2.5 rounded-xl">
+                                        <span class="font-heading font-black text-slate-900 flex items-center space-x-1.5">
+                                            <i class="fa-solid fa-flask text-amber-600"></i>
+                                            <span>Demostración Calificador (Simular Fin del Partido):</span>
+                                        </span>
+                                        <form action="{% url 'simulate_score' m.id %}" method="POST" class="flex items-center space-x-2">
+                                            {% csrf_token %}
+                                            <input type="number" name="home_score" min="0" max="9" placeholder="Local" required
+                                                   class="w-12 bg-white border-2 border-slate-300 rounded-lg px-2 py-0.5 text-center text-slate-950 text-xs font-black font-heading">
+                                            <span class="text-slate-500 font-black">-</span>
+                                            <input type="number" name="away_score" min="0" max="9" placeholder="Visita" required
+                                                   class="w-12 bg-white border-2 border-slate-300 rounded-lg px-2 py-0.5 text-center text-slate-950 text-xs font-black font-heading">
+                                            <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-heading font-black px-3.5 py-1 rounded-lg text-xs transition shadow-sm">
+                                                Finalizar y Recalcular
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-slate-100 rounded-xl p-4 text-center text-xs text-slate-700 font-medium">
+                                        <a href="{% url 'login' %}" class="text-fijas-orange font-heading font-black hover:underline">Inicia sesión aquí</a> para ingresar tu pronóstico para este encuentro.
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-8 bg-white rounded-2xl border-2 border-slate-200 text-slate-600 text-xs font-semibold">
+                            No hay encuentros programados en este momento.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- RESULTADOS OFICIALES Y EVALUACIÓN -->
+            <div class="space-y-3 pt-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                        <h2 class="text-sm font-heading font-black uppercase tracking-wider text-slate-900">Resultados Oficiales y Puntos Asignados</h2>
+                    </div>
+                    <span class="text-xs bg-slate-900 text-white border border-slate-800 px-3 py-1 rounded-full font-heading font-extrabold shadow-sm">
+                        {{ finished_matches.count }} Finalizados
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    {% for m in finished_matches %}
+                        <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+                            
+                            <!-- Header Info -->
+                            <div class="flex items-center justify-between text-xs text-slate-600 pb-2 border-b border-slate-200">
+                                <span class="font-heading font-black text-slate-900">{{ m.stage }}</span>
+                                <span class="bg-emerald-700 text-white font-heading font-black text-[11px] px-2.5 py-0.5 rounded-md shadow-2xs">
+                                    FINALIZADO
+                                </span>
+                                <span class="font-bold text-slate-700">{{ m.match_date|date:"d M Y" }}</span>
+                            </div>
+
+                            <!-- Teams and Score -->
+                            <div class="py-3.5 grid grid-cols-12 items-center text-center">
+                                <div class="col-span-5 flex items-center justify-end space-x-2.5">
+                                    <span class="font-heading font-black text-sm sm:text-base text-slate-950">{{ m.team_home }}</span>
+                                    <span class="text-2xl">{{ m.home_flag }}</span>
+                                </div>
+
+                                <div class="col-span-2 flex justify-center">
+                                    <div class="bg-orange-50 border-2 border-orange-300 px-4 py-1.5 rounded-xl shadow-2xs">
+                                        <span class="font-heading font-black text-xl text-fijas-orange">{{ m.home_score }} - {{ m.away_score }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-span-5 flex items-center justify-start space-x-2.5">
+                                    <span class="text-2xl">{{ m.away_flag }}</span>
+                                    <span class="font-heading font-black text-sm sm:text-base text-slate-950">{{ m.team_away }}</span>
+                                </div>
+                            </div>
+
+                            <!-- User Evaluation Breakdown -->
+                            {% if user.is_authenticated and m.id in user_predictions %}
+                                {% with pred=user_predictions|dict_get:m.id %}
+                                    <div class="mt-2 bg-slate-100 border-2 border-slate-200 p-3.5 rounded-xl">
+                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                            <div class="text-xs text-slate-800 font-bold">
+                                                Tu pronóstico registrado:
+                                                <span class="font-heading font-black text-slate-950 bg-white px-2.5 py-0.5 rounded-lg border-2 border-slate-300 shadow-2xs">
+                                                    {{ pred.home_score_pred }} - {{ pred.away_score_pred }}
+                                                </span>
+                                            </div>
+                                            <div class="text-xs font-heading font-black">
+                                                Puntos Ganados:
+                                                <span class="{% if pred.total_points > 0 %}text-emerald-700 font-black{% else %}text-slate-600{% endif %} text-base">
+                                                    +{{ pred.total_points }} PTS
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Rule Badges Breakdown con ALTO CONTRASTE -->
+                                        <div class="flex flex-wrap gap-1.5 mt-2.5 text-[11px]">
+                                            {% if pred.exact_score_points > 0 %}
+                                                <span class="bg-emerald-100 text-emerald-950 border-2 border-emerald-400 px-2.5 py-1 rounded-md font-heading font-black shadow-2xs">
+                                                    ✔ Regla 1: Marcador Exacto (+5)
+                                                </span>
+                                            {% endif %}
+                                            {% if pred.winner_points > 0 %}
+                                                <span class="bg-blue-100 text-blue-950 border-2 border-blue-400 px-2.5 py-1 rounded-md font-heading font-black shadow-2xs">
+                                                    ✔ Regla 2: Ganador (+3)
+                                                </span>
+                                            {% endif %}
+                                            {% if pred.diff_points > 0 %}
+                                                <span class="bg-purple-100 text-purple-950 border-2 border-purple-400 px-2.5 py-1 rounded-md font-heading font-black shadow-2xs">
+                                                    ✔ Regla 3: Diferencia Goles (+2)
+                                                </span>
+                                            {% endif %}
+                                            {% if pred.streak_bonus_points > 0 %}
+                                                <span class="bg-orange-100 text-orange-950 border-2 border-orange-400 px-2.5 py-1 rounded-md font-heading font-black shadow-2xs animate-pulse">
+                                                    🔥 Regla 4: Racha Consecutiva (+2)
+                                                </span>
+                                            {% endif %}
+                                            {% if pred.early_bonus_points > 0 %}
+                                                <span class="bg-cyan-100 text-cyan-950 border-2 border-cyan-400 px-2.5 py-1 rounded-md font-heading font-black shadow-2xs">
+                                                    ⚡ Regla 5: Anticipada >24h (+1)
+                                                </span>
+                                            {% endif %}
+                                            {% if pred.total_points == 0 %}
+                                                <span class="bg-slate-200 text-slate-800 px-2.5 py-1 rounded-md font-heading font-bold">
+                                                    0 puntos obtenidos
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR: BOLETA Y RANKING (4 Cols) -->
+        <div class="lg:col-span-4 space-y-6">
+
+            <!-- BOLETA DE PRONÓSTICOS -->
+            <div class="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 text-xs font-heading font-black uppercase text-slate-900 tracking-wider">
+                        <i class="fa-solid fa-receipt text-fijas-orange"></i>
+                        <span>Mi Boleta de Fijas</span>
+                    </div>
+                    <span class="bg-fijas-orange text-white text-[10px] font-heading font-black px-2.5 py-0.5 rounded-md shadow-2xs">
+                        EN JUEGO
+                    </span>
+                </div>
+
+                <div class="p-4 space-y-3">
+                    {% if user.is_authenticated %}
+                        <div class="bg-orange-50/80 border-2 border-orange-200 p-3.5 rounded-xl space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-700 font-semibold">Usuario Activo:</span>
+                                <span class="font-heading font-black text-slate-950">{{ user.username }}</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-700 font-semibold">Total Puntos:</span>
+                                <span class="font-heading font-black text-fijas-orange text-base">{{ user.profile.total_points|default:0 }} pts</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-700 font-semibold">Racha Actual:</span>
+                                <span class="font-heading font-black text-orange-600 flex items-center space-x-1">
+                                    <i class="fa-solid fa-fire text-fijas-orange"></i>
+                                    <span>{{ user.profile.current_streak|default:0 }} partidos</span>
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-700 font-semibold">Marcadores Exactos:</span>
+                                <span class="font-heading font-black text-emerald-700">{{ user.profile.exact_hits|default:0 }}</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 pt-1 text-xs text-slate-700">
+                            <div class="flex items-center justify-between">
+                                <span>Pronósticos Realizados:</span>
+                                <span class="font-heading font-black text-slate-950">{{ user_predictions|length }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Partidos Pendientes:</span>
+                                <span class="font-heading font-black text-amber-600">{{ scheduled_matches.count }}</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-600 text-center py-4 font-medium">Inicia sesión para ver tu resumen de boleta.</p>
+                        <a href="{% url 'login' %}" class="block text-center w-full py-2.5 bg-fijas-orange text-white font-heading font-black text-xs rounded-xl uppercase tracking-wider shadow-md">
+                            Iniciar Sesión
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- SALAS PRIVADAS WIDGET (Botón con Alto Contraste Negro) -->
+            <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-heading font-black uppercase tracking-wider text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-amber-500"></i>
+                        <span>Salas Privadas</span>
+                    </h3>
+                    <a href="{% url 'rooms' %}" class="text-xs font-heading font-bold text-fijas-orange hover:underline">Ver todas</a>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                    Compite en grupos cerrados con tus amigos mediante código de invitación único.
+                </p>
+                <a href="{% url 'rooms' %}" class="block text-center w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-heading font-black text-xs rounded-xl transition uppercase tracking-wider shadow-md">
+                    + Crear o Unirse a Sala
+                </a>
+            </div>
+
+            <!-- TOP CLASIFICACIÓN PREVIEW -->
+            <div class="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="text-xs font-heading font-black uppercase text-slate-900 tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-ranking-star text-amber-500"></i>
+                        <span>Top Clasificación</span>
+                    </h3>
+                    <a href="{% url 'leaderboard' %}" class="text-xs font-heading font-bold text-fijas-orange hover:underline">Ver Completa</a>
+                </div>
+
+                <div class="p-3 space-y-2">
+                    {% for p in top_leaderboard|slice:":5" %}
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border-2 border-slate-200">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-6 h-6 rounded-lg flex items-center justify-center font-heading font-black text-xs {% if forloop.counter == 1 %}bg-amber-400 text-slate-950 shadow-2xs{% elif forloop.counter == 2 %}bg-slate-300 text-slate-950{% elif forloop.counter == 3 %}bg-amber-700 text-white{% else %}bg-slate-200 text-slate-800{% endif %}">
+                                    {{ forloop.counter }}
+                                </span>
+                                <div>
+                                    <div class="text-xs font-heading font-black text-slate-950">{{ p.user.username }}</div>
+                                    <div class="text-[10px] text-slate-500 font-bold">Racha: {{ p.current_streak }} | Exactos: {{ p.exact_hits }}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-heading font-black text-fijas-orange">{{ p.total_points }}</span>
+                                <span class="text-[9px] text-slate-500 uppercase font-bold block">pts</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-xs text-slate-600 text-center py-4 font-medium">No hay participantes con puntos aún.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- AI MODAL -->
+<div id="aiModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border-2 border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <button onclick="closeAIModal()" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-black text-lg transition">
+            ✕
+        </button>
+
+        <div class="flex items-center space-x-2 text-fijas-orange font-heading font-black text-sm uppercase tracking-wider mb-4">
+            <i class="fa-solid fa-brain"></i>
+            <span>Estadísticas con Inteligencia Artificial (Poisson + xG)</span>
+        </div>
+
+        <div id="aiContent" class="space-y-4 text-xs text-slate-700">
+            <div class="flex flex-col items-center justify-center py-8 space-y-2">
+                <i class="fa-solid fa-circle-notch fa-spin text-fijas-orange text-2xl"></i>
+                <span class="text-slate-600 font-bold">Procesando modelo predictivo de IA...</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function stepScore(inputId, delta) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        let val = parseInt(input.value) || 0;
+        val = Math.max(0, Math.min(15, val + delta));
+        input.value = val;
+    }
+
+    function openAIModal(matchId) {
+        const modal = document.getElementById('aiModal');
+        const content = document.getElementById('aiContent');
+        modal.classList.remove('hidden');
+        content.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-8 space-y-2">
+                <i class="fa-solid fa-circle-notch fa-spin text-fijas-orange text-2xl"></i>
+                <span class="text-slate-600 font-bold">Calculando probabilidades del partido con IA...</span>
+            </div>
+        `;
+
+        fetch(`/ai-analysis/${matchId}/`)
+            .then(res => res.json())
+            .then(data => {
+                content.innerHTML = `
+                    <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 text-center">
+                        <div class="font-heading font-black text-base text-slate-950 mb-1">${data.home_team} vs ${data.away_team}</div>
+                        <div class="text-xs text-slate-600 font-medium mb-3">${data.stadium}</div>
+
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-white p-2.5 rounded-xl border-2 border-slate-200 shadow-2xs">
+                                <div class="text-[10px] font-heading uppercase font-bold text-slate-600">${data.home_team}</div>
+                                <div class="text-base font-heading font-black text-emerald-700">${data.probabilities.home_win}%</div>
+                                <div class="text-[9px] text-slate-500 font-bold">xG: ${data.home_xg}</div>
+                            </div>
+                            <div class="bg-white p-2.5 rounded-xl border-2 border-slate-200 shadow-2xs">
+                                <div class="text-[10px] font-heading uppercase font-bold text-slate-600">Empate</div>
+                                <div class="text-base font-heading font-black text-amber-600">${data.probabilities.draw}%</div>
+                            </div>
+                            <div class="bg-white p-2.5 rounded-xl border-2 border-slate-200 shadow-2xs">
+                                <div class="text-[10px] font-heading uppercase font-bold text-slate-600">${data.away_team}</div>
+                                <div class="text-base font-heading font-black text-blue-700">${data.probabilities.away_win}%</div>
+                                <div class="text-[9px] text-slate-500 font-bold">xG: ${data.away_xg}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-100 p-4 rounded-xl border border-slate-200">
+                        <div class="font-heading font-black text-slate-900 text-xs mb-2 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-chart-pie text-fijas-orange"></i>
+                            <span>Marcadores Más Probables (Distribución Poisson):</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            ${data.top_scores.slice(0, 3).map(s => `
+                                <div class="bg-white p-2.5 rounded-lg border-2 border-slate-200 shadow-2xs">
+                                    <div class="text-sm font-heading font-black text-fijas-orange">${s.score}</div>
+                                    <div class="text-[10px] text-emerald-700 font-black">${s.percentage}% prob</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 space-y-2">
+                        <div class="font-heading font-black text-slate-900 text-xs flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-600"></i>
+                            <span>Informe Táctico y Sugerencia de la IA:</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed font-medium">${data.tactical_summary}</p>
+                        <div class="p-3 rounded-xl bg-emerald-100 border-2 border-emerald-300 text-emerald-950 font-heading font-black text-xs shadow-2xs">
+                            <strong>Predicción Sugerida:</strong> ${data.recommended_prediction} (Confianza: ${data.confidence})
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(err => {
+                content.innerHTML = `<div class="text-red-600 font-bold text-center py-4">Error al cargar las estadísticas de IA.</div>`;
+            });
+    }
+
+    function closeAIModal() {
+        document.getElementById('aiModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

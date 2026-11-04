@@ -1,0 +1,5 @@
+/* Mundial Predictor Custom Styles */
+.card-hover:hover {
+    transform: translateY(-2px);
+    transition: all 0.2s ease-in-out;
+}

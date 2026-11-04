@@ -1,0 +1,57 @@
+# =========================================================================
+# GITIGNORE - FIJAS INFINITAS (FIFA WORLD CUP 2026 PREDICTIONS PLATFORM)
+# =========================================================================
+
+# Python & Django Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Django local databases & migrations cache
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+
+# Logs & Temporary files
+*.log
+logs/
+temp/
+tmp/
+stress_test_results.json
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Static collection & media uploads
+staticfiles/
+media/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Operating System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Docker local overrides
+docker-compose.override.yml

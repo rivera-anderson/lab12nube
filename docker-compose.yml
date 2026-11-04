@@ -1,0 +1,79 @@
+services:
+  # =========================================================================
+  # BASE DE DATOS RELACIONAL (POSTGRESQL 16)
+  # =========================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: mundial_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: mundial_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mundial_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mundial_net
+
+  # =========================================================================
+  # CAPA DE APLICACIÓN (BACKEND ESCALABLE - DJANGO + GUNICORN)
+  # Escalamiento Horizontal: 3 réplicas
+  # =========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: always
+    environment:
+      - DB_ENGINE=postgres
+      - POSTGRES_DB=mundial_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - DJANGO_SECRET_KEY=mundial-2026-production-secret-key-12345
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - mundial_net
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+
+  # =========================================================================
+  # BALANCEADOR DE CARGA Y PROXY INVERSO (NGINX)
+  # Distribuye el tráfico entrante Round-Robin entre las réplicas backend
+  # =========================================================================
+  loadbalancer:
+    image: nginx:alpine
+    container_name: mundial_loadbalancer
+    restart: always
+    ports:
+      - "80:80"
+      - "8080:80"
+      - "8000:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - mundial_net
+
+networks:
+  mundial_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
